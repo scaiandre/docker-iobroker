@@ -22,10 +22,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         sudo \
         unzip \
         wget \
-	net-tools \
 	inetutils-ping \
-	tzdata \
-	wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Install node8
@@ -62,8 +59,6 @@ RUN apt-get update \
 # Install node-gyp
 WORKDIR /opt/iobroker/
 RUN npm install -g node-gyp
-#RUN npm install iobroker.vis
-#RUN npm install iobroker.admin
 
 RUN setcap 'cap_net_admin+eip cap_net_bind_service+eip cap_net_raw+eip' $(eval readlink -f `which node`)
 
@@ -88,4 +83,3 @@ EXPOSE 8081/tcp
 	
 # Run startup-script
 CMD ["sh", "/opt/scripts/iobroker_startup.sh"]
-# CMD ["/bin/sleep", "infinity"]
