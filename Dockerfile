@@ -19,6 +19,10 @@ RUN apt-get update && apt-get install -y \
         sudo \
         unzip \
         wget \
+	net-tools \
+	inetutils-ping \
+	tzdata \
+	wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Install node8
@@ -45,18 +49,23 @@ COPY scripts/iobroker_startup.sh iobroker_startup.sh
 COPY scripts/packages_install.sh packages_install.sh
 RUN chmod +x avahi_startup.sh \
     && chmod +x iobroker_startup.sh \
-	&& chmod +x packages_install.sh
+    && chmod +x packages_install.sh 
 
 # Install ioBroker
 WORKDIR /
+
 RUN apt-get update \
-    && curl -sL https://raw.githubusercontent.com/ioBroker/ioBroker/stable-installer/installer.sh | bash - \
+    &&  curl -sL https://raw.githubusercontent.com/ioBroker/ioBroker/stable-installer/installer.sh | sed 's/sudo setcap/#sudo setcap/g' | bash - \
     && echo $(hostname) > /opt/iobroker/.install_host \
     && rm -rf /var/lib/apt/lists/*
 
 # Install node-gyp
 WORKDIR /opt/iobroker/
 RUN npm install -g node-gyp
+#RUN npm install iobroker.vis
+#RUN npm install iobroker.admin
+
+RUN setcap 'cap_net_admin+eip cap_net_bind_service+eip cap_net_raw+eip' $(eval readlink -f `which node`)
 
 # Backup initial ioBroker-folder
 RUN tar -cf /opt/initial_iobroker.tar /opt/iobroker
@@ -79,3 +88,4 @@ EXPOSE 8081/tcp
 	
 # Run startup-script
 CMD ["sh", "/opt/scripts/iobroker_startup.sh"]
+# CMD ["/bin/sleep", "infinity"]

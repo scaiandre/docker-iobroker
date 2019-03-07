@@ -1,0 +1,14 @@
+version: '3'
+services:
+  iobroker:
+    build: 
+      context: .
+    privileged: true
+    stdin_open: true
+    ports:
+      - 8081:8081
+    volumes:
+      - ./volume/:/opt/iobroker/
+    environment:
+      PACKAGES: 'ioBroker.lupusec'
+      AVAHI: 'false'
